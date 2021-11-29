@@ -9,12 +9,16 @@ provider "aws" {
 module "cloud_custodian" {
   source = "../."
 
-  name      = "cloud_custodian"
+  name      = "tf-cloud-custodian"
   namespace = "refarch"
   region    = "us-east-1"
-  stage     = "dev"
+  stage     = "example"
+
+  custodian_files_path = "${path.root}/files"
+
 
   tags      = {
-    Module = "terraform-aws-cloud-custodian"
+    Module  = "terraform-aws-cloud-custodian"
+    Example = "true"
   }
 }

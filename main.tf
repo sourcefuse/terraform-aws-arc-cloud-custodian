@@ -1,3 +1,6 @@
+###################################################
+## cloudtrail
+###################################################
 module "cloudtrail" {
   source  = "git::https://github.com/cloudposse/terraform-aws-cloudtrail.git?ref=0.20.1"
   enabled = var.cloudtrail_enabled
@@ -5,10 +8,10 @@ module "cloudtrail" {
   namespace                     = var.namespace
   stage                         = var.stage
   name                          = var.name
-  enable_log_file_validation    = "true"
-  include_global_service_events = "true"
-  is_multi_region_trail         = "false"
-  enable_logging                = "true"
+  enable_log_file_validation    = true
+  include_global_service_events = true
+  is_multi_region_trail         = false
+  enable_logging                = true
   s3_bucket_name                = module.cloudtrail_s3_bucket.bucket_id
 
   event_selector = [
@@ -32,9 +35,15 @@ module "cloudtrail_s3_bucket" {
   source  = "git::https://github.com/cloudposse/terraform-aws-cloudtrail-s3-bucket.git?ref=0.23.1"
   enabled = var.cloudtrail_s3_bucket_enabled
 
+  force_destroy = true
+
   namespace = var.namespace
   stage     = var.stage
   name      = "${var.name}-cloudtrail-logs"
+
+  tags = merge(local.tags, tomap({
+    Name = "${var.name}-cloudtrail-logs"
+  }))
 }
 
 resource "aws_s3_bucket" "custodian_output" {
@@ -51,18 +60,24 @@ resource "aws_s3_bucket" "custodian_output" {
   }))
 }
 
+// TODO - remove if determine not needed
 module "cloudtrail_sqs_queue" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-sqs.git?ref=v3.1.0"
-  name   = "${var.namespace}-${var.stage}-${var.region}-${var.name}-sqs"
+  count  = var.cloudtrail_sqs_enabled == true ? 1 : 0
+
+  name = "${var.namespace}-${var.stage}-${var.region}-${var.name}-sqs"
 
   tags = merge(local.tags, tomap({
     Name = "${var.namespace}-${var.stage}-${var.region}-${var.name}-sqs"
   }))
 }
 
+###################################################
+## iam
+###################################################
 resource "aws_iam_role" "role" {
   name = "${var.name}-role"
-  path = "/${var.namespace}/${var.stage}/"
+  path = "/"
 
   assume_role_policy = <<EOF
 {
@@ -78,6 +93,10 @@ resource "aws_iam_role" "role" {
   ]
 }
 EOF
+
+  tags = merge(local.tags, tomap({
+    Name = "${var.name}-role"
+  }))
 }
 
 resource "aws_iam_policy" "custodian_output_s3_policy" {
@@ -113,6 +132,10 @@ resource "aws_iam_policy" "custodian_output_s3_policy" {
   ]
 }
 EOF
+
+  tags = merge(local.tags, tomap({
+    Name = "${var.region}-${var.name}-s3-policy"
+  }))
 }
 
 resource "aws_iam_role_policy_attachment" "s3_output" {
@@ -131,6 +154,8 @@ resource "aws_iam_role_policy_attachment" "cloudwatchlogs" {
 }
 
 resource "aws_iam_role_policy_attachment" "sqs" {
+  count = var.cloudtrail_sqs_enabled == true ? 1 : 0
+
   role       = aws_iam_role.role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
@@ -143,4 +168,23 @@ resource "aws_iam_role_policy_attachment" "iam" {
 resource "aws_iam_role_policy_attachment" "tags" {
   role       = aws_iam_role.role.name
   policy_arn = "arn:aws:iam::aws:policy/ResourceGroupsandTagEditorReadOnlyAccess"
+}
+
+###################################################
+## cloud custodian
+###################################################
+data "template_file" "init" {
+  for_each = try(fileset(var.custodian_templates_path, "**.tpl"), {})
+  template = "${abspath(var.custodian_files_path)}/${each.value}"
+
+  vars = var.template_file_vars
+}
+
+resource "null_resource" "run_custodian" {
+  for_each = try(fileset(var.custodian_files_path, "**.yml"), {})
+
+  triggers = {
+    always = timestamp()
+    cc_cli = "custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}"
+  }
 }
