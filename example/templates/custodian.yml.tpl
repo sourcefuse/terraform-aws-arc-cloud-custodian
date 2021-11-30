@@ -1,12 +1,15 @@
 ---
 policies:
   - name: ec2-tag-compliance
-    comment: |
-      Tag non-compliant ec2 instances.
     resource: aws.ec2
+    comments: Tag non-compliant ec2 instances.
     mode:
-      type: ec2-instance-state
+      type: cloudtrail
       role: ${EC2_TAG_ROLE}
+      events:
+        - source: ec2.amazonaws.com
+          event: RunInstances
+          ids: "responseElements.instancesSet.items[].instanceId"
     filters:
       - "State.Name": running
       - "tag:aws:autoscaling:groupName": absent
@@ -15,6 +18,8 @@ policies:
           - "tag:ResourceOwner": absent
     actions:
       - type: tag
-        tags:
-          Environment: POC2
-          ResourceOwner: Example
+        key: Environment
+        value: POC2
+      - type: tag
+        key: ResourceOwner
+        value: Example
