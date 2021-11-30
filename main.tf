@@ -173,7 +173,7 @@ resource "aws_iam_role_policy_attachment" "tags" {
 ###################################################
 ## cloud custodian
 ###################################################
-resource "local_file" "cc_saved" {
+resource "local_file" "cc_files" {
   for_each = try(fileset(var.custodian_templates_path, "**.tpl"), {})
 
   content  = templatefile("${var.custodian_templates_path}/${each.value}", var.template_file_vars)
@@ -189,6 +189,7 @@ resource "null_resource" "run_custodian" {
 
   provisioner "local-exec" {
     command = <<EOF
+sleep 5;
 pip install c7n;
 custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}
 EOF
