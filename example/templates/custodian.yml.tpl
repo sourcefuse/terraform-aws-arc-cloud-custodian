@@ -6,7 +6,7 @@ policies:
     resource: aws.ec2
     mode:
       type: ec2-instance-state
-      role: arn:aws:iam::123456789012:role/lambda-role
+      role: ${EC2_TAG_ROLE}
     filters:
       - "State.Name": running
       - "tag:aws:autoscaling:groupName": absent

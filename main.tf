@@ -173,11 +173,11 @@ resource "aws_iam_role_policy_attachment" "tags" {
 ###################################################
 ## cloud custodian
 ###################################################
-data "template_file" "init" {
+resource "local_file" "cc_saved" {
   for_each = try(fileset(var.custodian_templates_path, "**.tpl"), {})
-  template = "${abspath(var.custodian_files_path)}/${each.value}"
 
-  vars = var.template_file_vars
+  content  = templatefile("${var.custodian_templates_path}/${each.value}", var.template_file_vars)
+  filename = "${var.custodian_files_path}/${trimsuffix(each.value, ".tpl")}"
 }
 
 resource "null_resource" "run_custodian" {
@@ -185,6 +185,15 @@ resource "null_resource" "run_custodian" {
 
   triggers = {
     always = timestamp()
-    cc_cli = "custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+pip install c7n;
+custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}
+EOF
+    environment = {
+      AWS_DEFAULT_REGION = var.region
+    }
   }
 }
