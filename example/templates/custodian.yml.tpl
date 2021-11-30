@@ -14,12 +14,10 @@ policies:
       - "State.Name": running
       - "tag:aws:autoscaling:groupName": absent
       - or:
-          - "tag:Environment": absent
-          - "tag:ResourceOwner": absent
+          - "tag:Example": absent
+          - "tag:AnotherExample": absent
     actions:
       - type: tag
-        key: Environment
-        value: POC2
-      - type: tag
-        key: ResourceOwner
-        value: Example
+        tags:
+          Example: true
+          AnotherExample: alsoTrue
