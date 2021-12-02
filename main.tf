@@ -73,6 +73,7 @@ module "cloudtrail_sqs_queue" {
 }
 
 ###################################################
+
 ## iam
 ###################################################
 resource "aws_iam_role" "role" {
@@ -174,7 +175,7 @@ resource "aws_iam_role_policy_attachment" "tags" {
 ## cloud custodian
 ###################################################
 resource "local_file" "cc_files" {
-  for_each = try(fileset(var.custodian_templates_path, "**.tpl"), {})
+  for_each = try(fileset(var.custodian_templates_path, "**.yml"), {})
 
   content  = templatefile("${var.custodian_templates_path}/${each.value}", var.template_file_vars)
   filename = "${var.custodian_files_path}/${trimsuffix(each.value, ".tpl")}"
