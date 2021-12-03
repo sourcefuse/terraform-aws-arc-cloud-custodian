@@ -1,6 +1,7 @@
 ---
 policies:
-  - name: ec2-tag-compliance-missing-tags
+  ## TODO - remove travis
+  - name: ec2-tag-compliance-missing-tags-travis
     resource: ec2
     comment: |
       Report on total count of non compliant instances
@@ -11,10 +12,11 @@ policies:
     actions:
       - type: tag
         tags:
-          Name: c7_generated_name
-          Project: c7_generated_project
+          Name: c7_generated_name_travis
+          Project: c7_generated_project_travis
 
-  - name: high-risk-security-groups-remediate
+  ## TODO - remove travis
+  - name: high-risk-security-groups-remediate-travis
     resource: security-group
     description: |
       Remove any rule from a security group that allows 0.0.0.0/0 or ::/0 (IPv6) ingress

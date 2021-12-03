@@ -198,4 +198,20 @@ EOF
       AWS_DEFAULT_REGION = var.region
     }
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+git clone https://github.com/cloud-custodian/cloud-custodian.git;
+cd cloud-custodian/;
+pip install virtualenv;
+virtualenv venv;
+venv/bin/pip install -r requirements.txt;
+AWS_DEFAULT_REGION=us-east-1 venv/bin/python ./tools/ops/mugc.py -c ${local.file_path}/${each.value} --present;
+EOF
+  }
+}
+
+locals {
+  file_path = abspath(var.custodian_files_path)
 }
