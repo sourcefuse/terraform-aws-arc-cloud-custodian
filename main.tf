@@ -1,4 +1,11 @@
 ###################################################
+## providers
+###################################################
+#provider "cli" {
+#  shell = "bash"
+#}
+
+###################################################
 ## cloudtrail
 ###################################################
 module "cloudtrail" {
@@ -73,7 +80,6 @@ module "cloudtrail_sqs_queue" {
 }
 
 ###################################################
-
 ## iam
 ###################################################
 resource "aws_iam_role" "role" {
@@ -179,20 +185,34 @@ resource "local_file" "cc_files" {
 
   content  = templatefile("${var.custodian_templates_path}/${each.value}", var.template_file_vars)
   filename = "${var.custodian_files_path}/${trimsuffix(each.value, ".tpl")}"
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+mkdir -p /tmp/cloud-custodian;
+cp ${self.filename} /tmp/cloud-custodian/;
+EOF
+  }
 }
 
 resource "null_resource" "run_custodian" {
   for_each = try(fileset(var.custodian_files_path, "**.yml"), {})
 
   triggers = {
-    always = timestamp()
+    always           = timestamp()
+    default_region   = var.region
+    file_path        = abspath(var.custodian_files_path)
+    file_name        = each.value
+    destroy_tmp_path = "/tmp/cloud-custodian"
   }
 
   provisioner "local-exec" {
     command = <<EOF
 sleep 5;
-pip install c7n;
-custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}
+pip install virtualenv;
+virtualenv custodian;
+venv/bin/pip install c7n;
+venv/bin/custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}
 EOF
     environment = {
       AWS_DEFAULT_REGION = var.region
@@ -206,12 +226,16 @@ git clone https://github.com/cloud-custodian/cloud-custodian.git;
 cd cloud-custodian/;
 pip install virtualenv;
 virtualenv venv;
+venv/bin/pip install c7n;
 venv/bin/pip install -r requirements.txt;
-AWS_DEFAULT_REGION=us-east-1 venv/bin/python ./tools/ops/mugc.py -c ${local.file_path}/${each.value} --present;
+sleep 3;
+mv ${self.triggers.destroy_tmp_path}/** ${self.triggers.file_path}/;
+rm -rf ${self.triggers.destroy_tmp_path};
+AWS_DEFAULT_REGION=${self.triggers.default_region} venv/bin/python ./tools/ops/mugc.py -c ${self.triggers.file_path}/${self.triggers.file_name} --present;
 EOF
   }
-}
 
-locals {
-  file_path = abspath(var.custodian_files_path)
+  depends_on = [
+    local_file.cc_files
+  ]
 }
