@@ -60,7 +60,6 @@ resource "aws_s3_bucket" "custodian_output" {
   }))
 }
 
-// TODO - remove if determine not needed
 module "cloudtrail_sqs_queue" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-sqs.git?ref=v3.1.0"
   count  = var.cloudtrail_sqs_enabled == true ? 1 : 0
@@ -174,27 +173,42 @@ resource "aws_iam_role_policy_attachment" "tags" {
 ## cloud custodian
 ###################################################
 resource "local_file" "cc_files" {
-  for_each = try(fileset(var.custodian_templates_path, "**.tpl"), {})
+  for_each = try(fileset(var.custodian_templates_path, "**.yml"), {})
 
   content  = templatefile("${var.custodian_templates_path}/${each.value}", var.template_file_vars)
   filename = "${var.custodian_files_path}/${trimsuffix(each.value, ".tpl")}"
 }
 
 resource "null_resource" "run_custodian" {
-  for_each = try(fileset(var.custodian_files_path, "**.yml"), {})
+  for_each = { for x in local_file.cc_files : x.filename => x }
 
   triggers = {
-    always = timestamp()
+    default_region = var.region
+    file_name      = abspath(each.value.filename)
   }
 
   provisioner "local-exec" {
     command = <<EOF
-sleep 5;
 pip install c7n;
-custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(var.custodian_files_path)}/${each.value}
+custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(self.triggers.file_name)}
 EOF
     environment = {
       AWS_DEFAULT_REGION = var.region
     }
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOF
+git clone https://github.com/cloud-custodian/cloud-custodian.git;
+cd cloud-custodian/;
+pip install virtualenv;
+virtualenv venv;
+venv/bin/pip install c7n;
+venv/bin/pip install -r requirements.txt;
+AWS_DEFAULT_REGION=${self.triggers.default_region} venv/bin/python ./tools/ops/mugc.py -c ${self.triggers.file_name} --present;
+cd ..;
+rm -rf cloud-custodian/;
+EOF
   }
 }

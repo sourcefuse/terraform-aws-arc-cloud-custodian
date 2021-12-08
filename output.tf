@@ -17,3 +17,8 @@ output "role_arn" {
   description = "ARN of the role created."
   value       = aws_iam_role.role.arn
 }
+
+output  "sqs_arn" {
+  description = "ARN of the SQS queue"
+  value = var.cloudtrail_sqs_enabled == true ? module.cloudtrail_sqs_queue[0].sqs_queue_arn : ""
+}

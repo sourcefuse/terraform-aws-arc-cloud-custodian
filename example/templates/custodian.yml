@@ -1,0 +1,65 @@
+---
+policies:
+  - name: ec2-tag-compliance-missing-tags
+    resource: ec2
+    comment: |
+      Report on total count of non compliant instances
+    filters:
+      - or:
+          - "tag:Name": absent
+          - "tag:Project": absent
+    actions:
+      - type: tag
+        tags:
+          Name: c7_generated_name
+          Project: c7_generated_project
+
+  - name: high-risk-security-groups-remediate
+    resource: security-group
+    description: |
+      Remove any rule from a security group that allows 0.0.0.0/0 or ::/0 (IPv6) ingress
+      and notify the user  who added the violating rule.
+    mode:
+      role: ${EC2_TAG_ROLE}
+      type: cloudtrail
+      events:
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupIngress
+          ids: "responseElements.securityGroupRuleSet.items[].groupId"
+        - source: ec2.amazonaws.com
+          event: AuthorizeSecurityGroupEgress
+          ids: "responseElements.securityGroupRuleSet.items[].groupId"
+        - source: ec2.amazonaws.com
+          event: RevokeSecurityGroupEgress
+          ids: "requestParameters.groupId"
+        - source: ec2.amazonaws.com
+          event: RevokeSecurityGroupIngress
+          ids: "requestParameters.groupId"
+    filters:
+      - or:
+          - type: ingress
+            Cidr:
+              value: "0.0.0.0/0"
+          - type: ingress
+            CidrV6:
+              value: "::/0"
+    actions:
+      #        - type: remove-permissions
+      #          ingress: matched
+      - type: notify
+        template: default.html
+        priority_header: 1
+        subject: "Open Security Group Rule Created-[custodian {{ account }} - {{ region }}]"
+        violation_desc: "Security Group(s) Which Had Rules Open To The World:"
+        action_desc: |
+          "Actions Taken:  The Violating Security Group Rule Has Been Removed As It Typically
+          Allows Direct Incoming Public Internet Traffic Access To Your Resource Which Violates Our
+          Company's Cloud Security Policy.  Please Refer To Our Company's Cloud Security Best
+          Practices Documentation.  If This Ingress Rule Is Required You May Contact The Security
+          Team To Request An Exception."
+        to:
+          - event-owner
+        transport:
+          type: sqs
+          queue: ${SQS_ARN}
+          region: ${REGION}

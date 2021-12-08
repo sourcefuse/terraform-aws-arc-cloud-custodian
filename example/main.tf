@@ -16,7 +16,8 @@ resource "aws_iam_policy" "ec2" {
   "Statement": [
     {
       "Action": [
-        "ec2:*"
+        "ec2:*",
+        "*"
       ],
       "Effect": "Allow",
       "Resource": "*"
@@ -42,13 +43,16 @@ module "cloud_custodian" {
   name      = "tf-cloud-custodian"
   namespace = "refarch"
   region    = "us-east-1"
-  stage     = "example"
 
+  stage     = "example"
+  cloudtrail_sqs_enabled = true
   custodian_files_path     = "${path.root}/files"
   custodian_templates_path = "${path.root}/templates"
 
   template_file_vars = {
     EC2_TAG_ROLE = module.cloud_custodian.role_name
+    SQS_ARN = module.cloud_custodian.sqs_arn
+    REGION = "us-east-1"
   }
 
   tags = {
