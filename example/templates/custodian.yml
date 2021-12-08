@@ -11,8 +11,8 @@ policies:
     actions:
       - type: tag
         tags:
-          Name: c7_generated_name_travis
-          Project: c7_generated_project_travis
+          Name: c7_generated_name
+          Project: c7_generated_project
 
   - name: high-risk-security-groups-remediate
     resource: security-group

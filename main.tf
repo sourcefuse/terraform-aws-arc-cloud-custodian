@@ -190,7 +190,6 @@ resource "null_resource" "run_custodian" {
   provisioner "local-exec" {
     command = <<EOF
 pip install c7n;
-sleep 5;
 custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(self.triggers.file_name)}
 EOF
     environment = {
@@ -207,7 +206,6 @@ pip install virtualenv;
 virtualenv venv;
 venv/bin/pip install c7n;
 venv/bin/pip install -r requirements.txt;
-sleep 3;
 AWS_DEFAULT_REGION=${self.triggers.default_region} venv/bin/python ./tools/ops/mugc.py -c ${self.triggers.file_name} --present;
 cd ..;
 rm -rf cloud-custodian/;
