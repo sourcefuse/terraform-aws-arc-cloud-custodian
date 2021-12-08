@@ -7,8 +7,7 @@ provider "aws" {
 }
 
 resource "aws_iam_policy" "ec2" {
-  // TODO - remove tss
-  name        = "tss-cloud-custodian-allow-ec2-management"
+  name        = "cloud-custodian-allow-ec2-management"
   description = "Cloud Custodian EC2 policy."
 
   policy = <<EOF
@@ -41,13 +40,11 @@ resource "aws_iam_role_policy_attachment" "ec2" {
 module "cloud_custodian" {
   source = "../."
 
-  // TODO - remove travis and add tf on final commit
-  name      = "tss-cloud-custodian"
+  name      = "tf-cloud-custodian"
   namespace = "refarch"
   region    = "us-east-1"
 
-  // TODO - remove tss on final commit. replace with example
-  stage     = "tss"
+  stage     = "example"
   cloudtrail_sqs_enabled = true
   custodian_files_path     = "${path.root}/files"
   custodian_templates_path = "${path.root}/templates"
