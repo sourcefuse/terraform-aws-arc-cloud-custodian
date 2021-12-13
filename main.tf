@@ -47,7 +47,7 @@ module "cloudtrail_s3_bucket" {
 }
 
 resource "aws_s3_bucket" "custodian_output" {
-  bucket = "${var.namespace}-${var.stage}-${var.region}-${var.name}-custodian-output"
+  bucket = "${var.namespace}-${var.stage}-${var.name}-custodian-output"
 
   force_destroy = true
 
@@ -189,8 +189,10 @@ resource "null_resource" "run_custodian" {
 
   provisioner "local-exec" {
     command = <<EOF
-pip install c7n;
-custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(self.triggers.file_name)}
+pip install virtualenv;
+virtualenv ${path.module}/venv;
+${path.module}/venv/bin/pip install c7n;
+${path.module}/venv/bin/custodian run -s s3://${aws_s3_bucket.custodian_output.bucket} ${abspath(self.triggers.file_name)}
 EOF
     environment = {
       AWS_DEFAULT_REGION = var.region
@@ -200,15 +202,15 @@ EOF
   provisioner "local-exec" {
     when    = destroy
     command = <<EOF
-git clone https://github.com/cloud-custodian/cloud-custodian.git;
-cd cloud-custodian/;
+git clone https://github.com/cloud-custodian/cloud-custodian.git ${path.module}/cloud-custodian;
+cd ${path.module}/cloud-custodian/;
 pip install virtualenv;
 virtualenv venv;
 venv/bin/pip install c7n;
 venv/bin/pip install -r requirements.txt;
 AWS_DEFAULT_REGION=${self.triggers.default_region} venv/bin/python ./tools/ops/mugc.py -c ${self.triggers.file_name} --present;
 cd ..;
-rm -rf cloud-custodian/;
+rm -rf ${path.module}/cloud-custodian/;
 EOF
   }
 }
