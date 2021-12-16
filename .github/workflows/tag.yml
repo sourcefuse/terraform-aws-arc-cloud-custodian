@@ -22,7 +22,7 @@ jobs:
       - name: git-tag
         uses: pkgdeps/git-tag-action@v2.0.1
         with:
-          version: $GIT_TAG
+          version: ${{ env.GIT_TAG }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
           git_commit_sha: ${{ github.sha }}
