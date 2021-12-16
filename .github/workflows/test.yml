@@ -2,10 +2,7 @@
 name: Test
 
 on:
-  ## TODO - remove push
-  push:
-    branches:
-      - SRA-167
+  - push
   pull_request:
     branches:
       - main
