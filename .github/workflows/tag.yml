@@ -24,6 +24,6 @@ jobs:
         with:
           version: $GIT_TAG
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repo: sourcefuse/terraform-aws-cloud-custodian
-          # git_commit_sha: # optional
-          # git_tag_prefix: # optional, default is ''
+          github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: ""
