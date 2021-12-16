@@ -2,15 +2,38 @@
 name: Test
 
 on:
+  push:
+    branches:
+      - '**'     # matches every branch
+      - '!main'  # excludes main
   pull_request:
     branches:
       - main
 
 
 jobs:
-  checkov-job:
+  tflint:
     runs-on: ubuntu-latest
-    name: checkov-test
+    name: tflint
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: terraform-linters/setup-tflint@v1
+        with:
+          tflint_version: latest
+
+      - name: Show version
+        run: tflint --version
+
+      - name: Init tflint
+        run: tflint --init
+
+      - name: Run tflint
+        run: tflint -f compact
+
+  checkov:
+    runs-on: ubuntu-latest
+    name: checkov
     steps:
       - uses: actions/checkout@master
 
@@ -26,3 +49,4 @@ jobs:
           download_external_modules: true
           log_level: WARNING
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
+
