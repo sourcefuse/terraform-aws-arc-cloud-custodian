@@ -2,6 +2,10 @@
 name: Test
 
 on:
+  ## TODO - remove push
+  push:
+    branches:
+      - SRA-167
   pull_request:
     branches:
       - main
@@ -10,7 +14,7 @@ on:
 jobs:
   checkov-job:
     runs-on: ubuntu-latest
-    name: checkov-action
+    name: checkov-test
     steps:
       - uses: actions/checkout@master
 
