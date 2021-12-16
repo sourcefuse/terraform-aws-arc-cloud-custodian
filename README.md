@@ -1,9 +1,9 @@
 # Terraform AWS: Cloud Custodian
 
 ## Requirements 
-Terraform >= 1.0.5
-Pip >= 20.0.2
-Python >= 3.6
+Terraform >= 1.0.5  
+Pip >= 20.0.2   
+Python >= 3.6  
 
 ## Getting started 
 
