@@ -6,6 +6,7 @@ Pip >= 20.0.2
 Python >= 3.6  
 
 ## Getting started 
+You must have Python 3.8 or above installed.
 
 To install Cloud Custodian, you can download it using Pip:
 
