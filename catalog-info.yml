@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: terraform-aws-cloud-custodian
+  description: Terraform module to set up Cloudcustian.
+  annotations:
+    github.com/project-slug: https://github.com/sourcefuse/terraform-aws-cloud-custodian
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: sourcefuse
+  lifecycle: development
