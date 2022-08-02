@@ -3,7 +3,7 @@ kind: Component
 metadata:
   name: terraform-aws-cloud-custodian
   namespace: arc
-  description: Terraform module to set up Cloudcustian.
+  description: Terraform module to set up Cloud custodian.
   annotations:
     github.com/project-slug: sourcefuse/terraform-aws-cloud-custodian
     backstage.io/techdocs-ref: dir:.
