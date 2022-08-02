@@ -1,0 +1,4 @@
+site_name: terraform-aws-cloud-custodian
+site_description: Terraform module to set up Cloud custodian.
+plugins:
+  - techdocs-core
