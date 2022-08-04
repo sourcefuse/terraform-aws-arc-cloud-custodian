@@ -7,6 +7,13 @@ metadata:
   annotations:
     github.com/project-slug: sourcefuse/terraform-aws-cloud-custodian
     backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/cloudposse/terraform-aws-cloudtrail
+      title: Provider Link
+      icon: dashboard
+    - url: https://github.com/cloudposse/terraform-aws-cloudtrail-s3-bucket
+      title: Provider Link
+      icon: dashboard
 spec:
   type: service
   owner: sourcefuse
