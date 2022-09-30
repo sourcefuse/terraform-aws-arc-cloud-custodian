@@ -17,28 +17,34 @@ variable "cloudtrail_sqs_enabled" {
 }
 
 variable "custodian_files_path" {
+  type        = string
   description = "Path to where the custodian files are located."
   default     = null
 }
 
 variable "custodian_templates_path" {
+  type        = string
   description = "Path to where the custodian template files are located."
   default     = null
 }
 
 variable "name" {
+  type        = string
   description = "Name of invocation."
 }
 
 variable "namespace" {
+  type        = string
   description = "A namespace for all the resources to live in."
 }
 
 variable "region" {
+  type        = string
   description = "AWS Region to create objects in."
 }
 
 variable "stage" {
+  type        = string
   description = "Stage of pipeline (Eg. sbx, dev, staging, uat, prod)."
 }
 
