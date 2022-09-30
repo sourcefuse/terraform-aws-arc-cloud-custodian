@@ -51,5 +51,5 @@ jobs:
           framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: json # optional: the output format, one of: cli, json, junitxml, github_failed_only
           download_external_modules: true
-          log_level: DEBUG
+          log_level: WARNING
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
