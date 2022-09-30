@@ -47,6 +47,7 @@ jobs:
         with:
           directory: .
           quiet: true # optional: display only failed checks
+          log_level: DEBUG
           soft_fail: true # optional: do not return an error code if there are failed checks. TODO - SRA-170
           framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: json # optional: the output format, one of: cli, json, junitxml, github_failed_only
