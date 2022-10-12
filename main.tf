@@ -50,8 +50,12 @@ resource "aws_s3_bucket" "custodian_output" {
   bucket = "${var.namespace}-${var.stage}-${var.name}-custodian-output"
 
   force_destroy = true
+  logging {
+    target_bucket = aws_s3_bucket.custodian_output.id
+  }
 
   versioning {
+    mfa_delete = true
     enabled = true
   }
 
