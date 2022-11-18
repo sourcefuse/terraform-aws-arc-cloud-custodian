@@ -1,0 +1,16 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-CC-TF-119:
+    - example/main.tf > resource > aws_iam_policy[ec2]:
+        reason: IAM Policy grants full administrative rights
+        expires: 2024-04-01T00:00:00.000Z
+        created: 2022-11-14T18:20:39.256Z
+  SNYK-CC-TF-95:
+    - main.tf > resource > aws_s3_bucket[custodian_output]:
+        reason: S3 block public ACLs control is disabled
+        expires: 2024-04-01T00:00:00.000Z
+        created: 2022-11-14T18:20:39.256Z
+
+  
