@@ -4,6 +4,7 @@
 terraform {
   required_version = ">= 1.0.8"
 
+
   #   backend "s3" {
   #     region         = "us-east-1"
   #     key            = "terraform-aws-cloud-custodian/terraform.tfstate"
@@ -27,6 +28,7 @@ terraform {
       source  = "hashicorp/random"
       version = ">= 2.0"
     }
+
 
     local = {
       source  = "hashicorp/local"

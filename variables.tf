@@ -23,6 +23,7 @@ variable "custodian_files_path" {
 }
 
 variable "custodian_templates_path" {
+
   type        = string
   description = "Path to where the custodian template files are located."
   default     = null
