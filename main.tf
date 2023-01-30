@@ -51,19 +51,28 @@ resource "aws_s3_bucket" "custodian_output" {
 
   force_destroy = true
 
-  server_side_encryption_configuration {}
   logging {
     target_bucket = aws_s3_bucket.custodian_output.id
   }
 
   versioning {
     mfa_delete = true
-    enabled = true
+    enabled    = true
   }
 
   tags = merge(local.tags, tomap({
     Name = "${var.name}-custodian-output"
   }))
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "server_side_encryption" {
+  bucket = aws_s3_bucket.custodian_output.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+  }
 }
 
 module "cloudtrail_sqs_queue" {
