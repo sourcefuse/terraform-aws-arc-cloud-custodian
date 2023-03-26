@@ -1,9 +1,11 @@
 # Terraform AWS: Cloud Custodian
 
+The purpose of this module is to provide a Terraform based interface for administering Cloud Custodian to assist with managing the state of template files and to allow for easier runtime interpolation via Terraform.
+
 ## Requirements 
 Terraform >= 1.0.5  
 Pip >= 20.0.2   
-Python >= 3.6  
+Python >= 3.8  
 
 ## Getting started 
 You must have Python 3.8 or above installed.
@@ -17,6 +19,80 @@ pip install c7n
   * c7n is for AWS
   * c7n_azure us for Azure
   * c7n_gcp is for Google Compute  
+
+## Usage
+```hcl
+terraform {
+  required_version = "~> 1.0.5"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_iam_policy" "ec2" {
+  name        = "cloud-custodian-allow-ec2-management"
+  description = "Cloud Custodian EC2 policy."
+
+  # This policy is for example purposes only
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:*",
+        "*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "aws_lambda_basic_execution_role" {
+  role       = module.cloud_custodian.role_name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2" {
+  role       = module.cloud_custodian.role_name
+  policy_arn = aws_iam_policy.ec2.arn
+}
+
+module "cloud_custodian" {
+  source = "../."
+
+  name      = "tf-cloud-custodian"
+  namespace = "refarch"
+  region    = "us-east-1"
+
+  stage                    = "example"
+  cloudtrail_sqs_enabled   = true
+  custodian_files_path     = "${path.root}/files"
+  custodian_templates_path = "${path.root}/templates"
+
+  template_file_vars = {
+    EC2_TAG_ROLE = module.cloud_custodian.role_name
+    SQS_ARN      = module.cloud_custodian.sqs_arn
+    REGION       = "us-east-1"
+  }
+
+  tags = {
+    Module  = "terraform-aws-cloud-custodian"
+    Example = "true"
+  }
+}
+
+```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -98,8 +174,7 @@ On commits to `main`, you will need to increment this version. Once the project 
 
 ### Prerequisites
 
-Install the prerequisites:  
-* [golang](https://golang.org/doc/install#install)
+Install the prerequisites:
 * [pre-commit](https://pre-commit.com/#install)
 * [terraform](https://learn.hashicorp.com/terraform/getting-started/install#installing-terraform)
 * [terraform-docs](https://github.com/segmentio/terraform-docs)
@@ -114,4 +189,4 @@ pre-commit run --all-files
 ## Authors
 
 This project is authored by:  
-* SourceFuse  
+* SourceFuse ARC Team

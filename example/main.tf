@@ -16,6 +16,7 @@ resource "aws_iam_policy" "ec2" {
   name        = "cloud-custodian-allow-ec2-management"
   description = "Cloud Custodian EC2 policy."
 
+  # This policy is for example purposes only
   policy = <<EOF
 {
   "Version": "2012-10-17",
