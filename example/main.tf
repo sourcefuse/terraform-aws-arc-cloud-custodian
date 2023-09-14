@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.0.5"
+  required_version = ">= 1.3.0, < 2.0.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -48,18 +48,18 @@ module "cloud_custodian" {
   source = "../."
 
   name      = "tf-cloud-custodian"
-  namespace = "refarch"
+  namespace = "arc"
   region    = "us-east-1"
 
-  stage                    = "example"
+  stage                    = "dev"
   cloudtrail_sqs_enabled   = true
   custodian_files_path     = "${path.root}/files"
   custodian_templates_path = "${path.root}/templates"
 
   template_file_vars = {
-    EC2_TAG_ROLE = module.cloud_custodian.role_name
-    SQS_ARN      = module.cloud_custodian.sqs_arn
-    REGION       = "us-east-1"
+    # EC2_TAG_ROLE     = module.cloud_custodian.role_name
+    SQS_ARN = module.cloud_custodian.sqs_arn
+    REGION  = "us-east-1"
   }
 
   tags = {
