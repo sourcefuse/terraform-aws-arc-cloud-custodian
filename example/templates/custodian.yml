@@ -3,10 +3,12 @@ policies:
   - name: stop-ec2
     resource: ec2
     filters:
-      - type: offhour    
+      - type: offhour
         default_tz: et
         weekends: true
         offhour: 19
+      - not:
+          - "tag:Name": "AWS Application Migration Service Replication Server"
     actions:
       - stop
       - type: notify
@@ -25,6 +27,8 @@ policies:
         default_tz: et
         weekends: true
         onhour: 9
+      - not:
+          - "tag:Name": "AWS Application Migration Service Replication Server"
     actions:
       - start
       - type: notify
@@ -35,5 +39,4 @@ policies:
           type: sqs
           queue: ${SQS_ARN}
           region: ${REGION}
-
-        
+          
