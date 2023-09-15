@@ -6,7 +6,7 @@ policies:
       - type: offhour
         default_tz: et
         weekends: true
-        offhour: 19
+        offhour: 20
       - not:
           - "tag:Name": "AWS Application Migration Service Replication Server"
     actions:
@@ -26,7 +26,7 @@ policies:
       - type: onhour
         default_tz: et
         weekends: true
-        onhour: 9
+        onhour: 3
       - not:
           - "tag:Name": "AWS Application Migration Service Replication Server"
     actions:
