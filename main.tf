@@ -32,10 +32,11 @@ module "cloudtrail" {
 }
 
 module "cloudtrail_s3_bucket" {
-  source  = "git::https://github.com/cloudposse/terraform-aws-cloudtrail-s3-bucket.git?ref=0.23.1"
+  source  = "git::https://github.com/cloudposse/terraform-aws-cloudtrail-s3-bucket.git?ref=0.26.2"
   enabled = var.cloudtrail_s3_bucket_enabled
 
-  force_destroy = true
+  force_destroy            = true
+  create_access_log_bucket = true
 
   namespace = var.namespace
   stage     = var.stage
@@ -51,12 +52,12 @@ resource "aws_s3_bucket" "custodian_output" {
 
   force_destroy = true
 
-  logging {
-    target_bucket = aws_s3_bucket.custodian_output.id
-  }
+  # logging {
+  #   target_bucket = aws_s3_bucket.custodian_output.id
+  # }
 
   versioning {
-    mfa_delete = true
+    mfa_delete = false
     enabled    = true
   }
 
@@ -159,7 +160,7 @@ resource "aws_iam_role_policy_attachment" "s3_output" {
 
 resource "aws_iam_role_policy_attachment" "cloudtrail" {
   role       = aws_iam_role.role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSCloudTrailReadOnlyAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCloudTrail_FullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatchlogs" {
