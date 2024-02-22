@@ -7,6 +7,9 @@
 
 The purpose of this module is to provide a Terraform based interface for administering Cloud Custodian to assist with managing the state of template files and to allow for easier runtime interpolation via Terraform.
 
+For more information about this repository and its usage, please see [Terraform AWS ARC GitHub CLOUD CUSTODIAN Module Usage Guide](https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/blob/main/docs/module-usage-guide/README.md).
+
+
 ## Requirements 
 
 ```shell
