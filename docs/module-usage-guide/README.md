@@ -102,17 +102,17 @@ Follow best practices to ensure best Security configurations.
 
 ### Contributing Guidelines
 
-Contribute to the module by following the guidelines outlined in the [CONTRIBUTING.md](https://github.com/sourcefuse/terraform-aws-arc-security/blob/main/CONTRIBUTING.md) file.
+Contribute to the module by following the guidelines outlined in the [CONTRIBUTING.md](https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/blob/main/CONTRIBUTING.md) file.
 
 ### Reporting Bugs and Issues
 
-If you find a bug or issue, report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-security/issues).
+If you find a bug or issue, report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/issues).
 
 ## License
 
 ### License Information
 
-This module is licensed under the Apache 2.0 license. Refer to the [LICENSE](https://github.com/sourcefuse/terraform-aws-arc-security/blob/main/LICENSE) file for more details.
+This module is licensed under the Apache 2.0 license. Refer to the [LICENSE](https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/blob/main/LICENSE) file for more details.
 
 ### Open Source Contribution
 
