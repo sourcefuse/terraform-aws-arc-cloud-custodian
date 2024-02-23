@@ -1,4 +1,4 @@
-# Contributing to AWS ARC Billing
+# Contributing to AWS ARC CLOUD CUSODIAN
 Thank you for considering contributing to AWS ARC Billing! We appreciate your time and effort.
 To ensure a smooth collaboration, please take a moment to review the following guidelines.
 
