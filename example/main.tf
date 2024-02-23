@@ -45,7 +45,8 @@ resource "aws_iam_role_policy_attachment" "ec2" {
 }
 
 module "cloud_custodian" {
-  source = "../."
+  source  = "sourcefuse/arc-cloud-custodian/aws"
+  version = "0.0.6"
 
   name      = "tf-cloud-custodian"
   namespace = "arc"
